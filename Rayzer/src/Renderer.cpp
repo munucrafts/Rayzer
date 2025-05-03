@@ -2,6 +2,7 @@
 #include "Ray.h"
 #include "Sphere.h"
 #include "Light.h"
+#include "Scene.h"
 
 void Renderer::Render(int width, int height)
 {
@@ -62,57 +63,55 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 {
 	coordinate.x *= (float)finalImage->GetWidth() / (float)finalImage->GetHeight();
 
-	// ==============================
-	// Raytracing Core Equations:
-	//
-	// Ray Equation:
-	//    => hitPoint = rayOrigin + hitDistance * rayDirection 
-	//	  => P = O + t * D
-	//
-	// Sphere Equation:
-	//    => (x)^2 + (y)^2 + (z)^2 = r^2
-	// 
-	// Substituting Ray into Sphere:
-	//    => (Ox + t * Dx)^2 + (Oy + t * Dy)^2 + (Oz + t * Dz)^2 = r^2
-	//    => (Dx^2 + Dy^2 + Dz^2) t^2 + 2 (OxDx + OyDy + OzDz) t + (Ox^2 + Oy^2 + Oz^2 - r^2) = 0
-	//    => (a) t^2 + (b) t + (c) = 0
-	//
-	// Where:
-	//    a = dot(rayDirection, rayDirection)
-	//    b = 2 * dot(rayOrigin, rayDirection)
-	//    c = dot(rayOrigin, rayOrigin) - r^2
-	// 
-	// Discriminant:
-	//    discriminant = b^2 - 4ac
-	//
-	//    If discriminant < 0 → No real solutions → Ray misses the sphere
-	//    If discriminant = 0 → One solution → Ray grazes (touches) the sphere
-	//    If discriminant > 0 → Two solutions → Ray hits sphere at two points (entry and exit)
-	//
-	// Solution for t (hit distance):
-	//    t = (-b ± sqrt(discriminant)) / (2a)
-	//
-	// ==============================
-
 	Ray ray;
 	ray.origin = { 0.0f, 0.0f, -1.0f };
-	ray.direction = { coordinate.x, coordinate.y, -1.0f };
+	ray.direction = glm::normalize(glm::vec3(coordinate, -1.0f));
 
-	Sphere sphere;
-	sphere.origin = { 0.5f, 0.0f, 0.0f };
-	sphere.radius = 0.5f; 
-	sphere.color = glm::vec3(0.25f, 1.0f, 0.25f);
+	Sphere sphere1;
+	sphere1.origin = { -0.5f, 0.0f, 1.0f };
+	sphere1.radius = 0.5f;
+	sphere1.color = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	HitResult hitRes = sphere.SphereRayIntersection(ray);
-	if (!hitRes.hit)
+	Sphere sphere2;
+	sphere2.origin = { 0.7f, 0.0f, 3.0f };
+	sphere2.radius = 1.5f;
+	sphere2.color = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	Scene scene;
+	scene.spheres.push_back(sphere1);
+	scene.spheres.push_back(sphere2);
+
+	float closestHitDistance = FLT_MAX;
+	HitResult closestHitRes;
+	Sphere* closestHitSphere = nullptr;
+
+	for (int i = 0; i < scene.spheres.size(); i++)
+	{
+		HitResult hitRes = scene.spheres[i].SphereRayIntersection(ray);
+
+		if (!hitRes.hit)
+			continue;
+
+		if (hitRes.hitDistance < closestHitDistance)
+		{
+			closestHitSphere = &scene.spheres[i];
+			closestHitDistance = hitRes.hitDistance;
+			closestHitRes = hitRes;
+		}
+	}
+
+	if (closestHitSphere == nullptr)
 		return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	Light light;
-	light.lightDirection = glm::vec3(-1.0f, -1.0f, -1.0f);
-	light.intensity = 2.0f;
-	float angle = light.GetLightIntensityAngle(hitRes.normal);
+	Light light1;
+	light1.lightDirection = glm::vec3(1.0f, 1.0f, -1.0f);
+	light1.intensity = 1.25f;
 
-	return glm::vec4(sphere.color * angle, 1.0f);
+	float angle1 = light1.GetLightIntensityAngle(closestHitRes.normal);
+
+	return glm::vec4(closestHitSphere->color * angle1, 1.0f);
 }
+
+
 
 

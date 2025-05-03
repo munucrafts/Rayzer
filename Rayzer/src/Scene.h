@@ -2,7 +2,7 @@
 #include <vector>
 #include "Sphere.h"
 
-struct scene
+struct Scene
 {
 	std::vector<Sphere> spheres;
 };

@@ -5,7 +5,6 @@ HitResult Sphere::SphereRayIntersection(Ray& ray)
 {
     HitResult hitData;
 
-    // We create translatedOrigin to move out sphere back to the origin mathematically when the sphere origin is something other than vec3(0.0f)
     glm::vec3 translatedOrigin = ray.origin - origin;
 
     float a = glm::dot(ray.direction, ray.direction);
@@ -14,15 +13,20 @@ HitResult Sphere::SphereRayIntersection(Ray& ray)
 
     float discriminant = b * b - 4.0f * a * c;
 
-    if (discriminant < 0.0f) 
+    if (discriminant < 0.0f)
         return hitData;
 
-    float t = (- b - glm::sqrt(discriminant)) / (2.0f * a);
+    float t = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+
+    glm::vec3 localHitPoint = translatedOrigin + ray.direction * t;
+    glm::vec3 worldHitPoint = origin + localHitPoint;
 
     hitData.hit = true;
-    hitData.hitLocation = ray.direction * t + ray.origin;
-    hitData.normal = glm::normalize(hitData.hitLocation - origin);
+    hitData.hitLocation = worldHitPoint;
+    hitData.normal = glm::normalize(worldHitPoint - origin);
+    hitData.hitDistance = t;
     hitData.hitRay = &ray;
 
     return hitData;
 }
+
