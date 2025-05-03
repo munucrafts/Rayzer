@@ -1,4 +1,7 @@
 ﻿#include "Renderer.h"
+#include "Ray.h"
+#include "Sphere.h"
+#include "Light.h"
 
 void Renderer::Render(int width, int height)
 {
@@ -91,32 +94,25 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 	//
 	// ==============================
 
-	glm::vec3 rayOrigin(0.0f, 0.0f, -1.0f);
-	glm::vec3 rayDirection(coordinate.x, coordinate.y, -1.0f);
+	Ray ray;
+	ray.origin = { 0.0f, 0.0f, -1.0f };
+	ray.direction = { coordinate.x, coordinate.y, -1.0f };
 
-	float radius = 0.5f;
+	Sphere sphere;
+	sphere.origin = { 0.5f, 0.0f, 0.0f };
+	sphere.radius = 0.5f; 
+	sphere.color = glm::vec3(0.25f, 1.0f, 0.25f);
 
-	float a = glm::dot(rayDirection, rayDirection);
-	float b = 2.0f * glm::dot(rayOrigin, rayDirection);
-	float c = glm::dot(rayOrigin, rayOrigin) - radius * radius;
-
-	float discriminant = b * b - 4.0f * a * c;
-
-	if (discriminant < 0.0f)
+	HitResult hitRes = sphere.SphereRayIntersection(ray);
+	if (!hitRes.hit)
 		return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float t =  (-b - glm::sqrt(discriminant)) / (2.0f * a);
-	glm::vec3 hitPoint = rayDirection * t + rayOrigin;
-	glm::vec3 normal = glm::normalize(hitPoint);
+	Light light;
+	light.lightDirection = glm::vec3(-1.0f, -1.0f, -1.0f);
+	light.intensity = 2.0f;
+	float angle = light.GetLightIntensityAngle(hitRes.normal);
 
-	glm::vec3 lightDirection(-1.0f, -1.0f, -1.0f);
-	lightDirection = glm::normalize(lightDirection);
-	float angle = glm::max(glm::dot(normal, -lightDirection), 0.0f);
-
-	glm::vec3 sphereColor = glm::vec3(1.0f, 0.0f, 1.0f);
-	sphereColor *= angle;
-
-	return glm::vec4(sphereColor, 1.0f);
+	return glm::vec4(sphere.color * angle, 1.0f);
 }
 
 
