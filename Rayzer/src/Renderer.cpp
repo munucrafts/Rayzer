@@ -75,40 +75,41 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 
 glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
-	if (numBounces <= 0)
-		return backgroundColor;
-
 	Sphere sphere1;
-	sphere1.origin = { -0.5f, 0.0f, 1.0f };
+	sphere1.origin = { -0.95f, 0.0f, 3.0f };
 	sphere1.radius = 0.5f;
 	sphere1.color = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	Sphere sphere2;
-	sphere2.origin = { 0.7f, 0.0f, 3.0f };
+	sphere2.origin = { 1.25f, 0.0f, 2.0f };
 	sphere2.radius = 1.5f;
 	sphere2.color = glm::vec3(1.0f, 0.0f, 0.0f);
 
-	Scene scene;
-	scene.spheres.push_back(sphere1);
-	scene.spheres.push_back(sphere2);
+	Scene activeScene;
 
-	if (scene.spheres.size() == 0)
+	activeScene.spheres.push_back(sphere1);
+	activeScene.spheres.push_back(sphere2);
+
+	if (numBounces <= 0)
+		return backgroundColor;
+
+	if (activeScene.spheres.size() == 0)
 		return backgroundColor;
 
 	float closestHitDistance = FLT_MAX;
 	HitResult closestHitRes;
 	Sphere* closestHitSphere = nullptr;
 
-	for (int i = 0; i < scene.spheres.size(); i++)
+	for (int i = 0; i < activeScene.spheres.size(); i++)
 	{
-		HitResult hitRes = scene.spheres[i].SphereRayIntersection(ray);
+		HitResult hitRes = activeScene.spheres[i].SphereRayIntersection(ray);
 
 		if (!hitRes.hit)
 			continue;
 
-		if (hitRes.hitDistance < closestHitDistance)
+		if (closestHitDistance > 0 && hitRes.hitDistance < closestHitDistance)
 		{
-			closestHitSphere = &scene.spheres[i];
+			closestHitSphere = &activeScene.spheres[i];
 			closestHitDistance = hitRes.hitDistance;
 			closestHitRes = hitRes;
 		}
@@ -118,19 +119,19 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 		return backgroundColor;
 
 	Light light;
-	light.lightDirection = glm::vec3(1.0f, 1.0f, -1.0f);
-	light.intensity = 1.25f;
+	light.lightDirection = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
+	light.intensity = 2.0f;
 	float angle = light.GetLightIntensityAngle(closestHitRes.normal);
 	glm::vec3 sphereLocalColor = closestHitSphere->color * angle;
 
 	Ray reflectedRay;
 	glm::vec3 reflectDir = glm::reflect(ray.direction, closestHitRes.normal);
 	reflectedRay.origin = closestHitRes.hitLocation + closestHitRes.normal * 0.0001f;
-	reflectedRay.direction = glm::normalize(reflectDir);
+	reflectedRay.direction = - glm::normalize(reflectDir);
 
 	glm::vec4 reflectedColor = TraceRay(reflectedRay, numBounces - 1);
 
-	glm::vec3 sphereFinalColor = glm::mix(sphereLocalColor, glm::vec3(reflectedColor), 0.50f);
+	glm::vec3 sphereFinalColor = glm::mix(reflectedColor, glm::vec4(sphereLocalColor, 0), 0.5);
 
 	return glm::vec4(sphereFinalColor, 1.0f);
 }
