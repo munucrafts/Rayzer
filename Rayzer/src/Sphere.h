@@ -7,7 +7,7 @@ struct HitResult
 	Ray* hitRay = nullptr;
 	glm::vec3 hitLocation = {};
 	glm::vec3 normal = {};
-	float hitDistance = NULL;
+	float hitDistance = -1;
 };
 
 class Sphere

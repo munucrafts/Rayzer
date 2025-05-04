@@ -1,8 +1,12 @@
 ﻿#include "Renderer.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "Light.h"
-#include "Scene.h"
+
+Renderer::Renderer()
+{
+	bounces = 2;
+	backgroundColor = {0.1f, 0.1f, 0.1f, 1.0f};
+	imageData = 0;
+	finalImage = nullptr;
+}
 
 void Renderer::Render(int width, int height)
 {
@@ -14,6 +18,7 @@ void Renderer::Render(int width, int height)
 		{
 			glm::vec2 coord = glm::vec2(x / (float)finalImage->GetWidth(), y / (float)finalImage->GetHeight());
 			coord = coord * 2.0f - 1.0f; 
+			coord.x *= (float)finalImage->GetWidth() / (float)finalImage->GetHeight();
 			imageData[x + y * finalImage->GetWidth()] = ColorToRgba(RenderPixel(coord));
 		}
 	}
@@ -61,11 +66,17 @@ std::shared_ptr<Walnut::Image> Renderer::GetFinalImage()
 
 glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 {
-	coordinate.x *= (float)finalImage->GetWidth() / (float)finalImage->GetHeight();
-
 	Ray ray;
 	ray.origin = { 0.0f, 0.0f, -1.0f };
 	ray.direction = glm::normalize(glm::vec3(coordinate, -1.0f));
+
+	return TraceRay(ray, bounces);
+}
+
+glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
+{
+	if (numBounces <= 0)
+		return backgroundColor;
 
 	Sphere sphere1;
 	sphere1.origin = { -0.5f, 0.0f, 1.0f };
@@ -80,6 +91,9 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 	Scene scene;
 	scene.spheres.push_back(sphere1);
 	scene.spheres.push_back(sphere2);
+
+	if (scene.spheres.size() == 0)
+		return backgroundColor;
 
 	float closestHitDistance = FLT_MAX;
 	HitResult closestHitRes;
@@ -101,16 +115,28 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 	}
 
 	if (closestHitSphere == nullptr)
-		return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		return backgroundColor;
 
-	Light light1;
-	light1.lightDirection = glm::vec3(1.0f, 1.0f, -1.0f);
-	light1.intensity = 1.25f;
+	Light light;
+	light.lightDirection = glm::vec3(1.0f, 1.0f, -1.0f);
+	light.intensity = 1.25f;
+	float angle = light.GetLightIntensityAngle(closestHitRes.normal);
+	glm::vec3 sphereLocalColor = closestHitSphere->color * angle;
 
-	float angle1 = light1.GetLightIntensityAngle(closestHitRes.normal);
+	Ray reflectedRay;
+	glm::vec3 reflectDir = glm::reflect(ray.direction, closestHitRes.normal);
+	reflectedRay.origin = closestHitRes.hitLocation + closestHitRes.normal * 0.0001f;
+	reflectedRay.direction = glm::normalize(reflectDir);
 
-	return glm::vec4(closestHitSphere->color * angle1, 1.0f);
+	glm::vec4 reflectedColor = TraceRay(reflectedRay, numBounces - 1);
+
+	glm::vec3 sphereFinalColor = glm::mix(sphereLocalColor, glm::vec3(reflectedColor), 0.50f);
+
+	return glm::vec4(sphereFinalColor, 1.0f);
 }
+
+
+
 
 
 
