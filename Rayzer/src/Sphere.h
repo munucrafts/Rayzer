@@ -1,6 +1,13 @@
 #pragma once
 #include "Ray.h"
 
+struct Material
+{
+	glm::vec3 color = {1.0f, 1.0f, 1.0f};
+	float roughness = 1.0f;
+	float metallic = 0.0f;
+};
+
 struct HitResult
 {
 	bool hit = false;
@@ -18,7 +25,7 @@ public:
 
 public:
 	float radius;
-	glm::vec3 color;
 	glm::vec3 origin;
+	Material mat;
 };
 

@@ -3,7 +3,7 @@
 Renderer::Renderer()
 {
 	bounces = 2;
-	backgroundColor = {0.1f, 0.1f, 0.1f, 1.0f};
+	backgroundColor = {0.3f, 0.6f, 0.9f, 1.0f};
 	imageData = 0;
 	finalImage = nullptr;
 }
@@ -76,19 +76,25 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
 	Sphere sphere1;
-	sphere1.origin = { -0.95f, 0.0f, 3.0f };
-	sphere1.radius = 0.5f;
-	sphere1.color = glm::vec3(0.0f, 1.0f, 0.0f);
+	sphere1.origin = { -2.0f, 0.0f, 3.0f };
+	sphere1.radius = 1.5f;
+	sphere1.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	Sphere sphere2;
-	sphere2.origin = { 1.25f, 0.0f, 2.0f };
+	sphere2.origin = { 2.0f, 0.0f, 3.0f };
 	sphere2.radius = 1.5f;
-	sphere2.color = glm::vec3(1.0f, 0.0f, 0.0f);
+	sphere2.mat.color = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	Sphere sphere3;
+	sphere3.origin = { 2.0f, 165.5f, 50.0f };
+	sphere3.radius = 150.0f;
+	sphere3.mat.color = glm::vec3(0.5f, 1.0f, 0.5f);
 
 	Scene activeScene;
 
 	activeScene.spheres.push_back(sphere1);
 	activeScene.spheres.push_back(sphere2);
+	activeScene.spheres.push_back(sphere3);
 
 	if (numBounces <= 0)
 		return backgroundColor;
@@ -120,9 +126,10 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 
 	Light light;
 	light.lightDirection = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
-	light.intensity = 2.0f;
+	light.intensity = 1.5f;
+
 	float angle = light.GetLightIntensityAngle(closestHitRes.normal);
-	glm::vec3 sphereLocalColor = closestHitSphere->color * angle;
+	glm::vec3 sphereLocalColor = closestHitSphere->mat.color * angle;
 
 	Ray reflectedRay;
 	glm::vec3 reflectDir = glm::reflect(ray.direction, closestHitRes.normal);
@@ -130,15 +137,8 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 	reflectedRay.direction = - glm::normalize(reflectDir);
 
 	glm::vec4 reflectedColor = TraceRay(reflectedRay, numBounces - 1);
+	glm::vec3 finalColor = glm::mix(sphereLocalColor, glm::vec3(reflectedColor), 0.4f);
+	finalColor = glm::mix(finalColor, glm::vec3(backgroundColor), 0.1f);
 
-	glm::vec3 sphereFinalColor = glm::mix(reflectedColor, glm::vec4(sphereLocalColor, 0), 0.5);
-
-	return glm::vec4(sphereFinalColor, 1.0f);
+	return glm::vec4(finalColor, 1.0f);
 }
-
-
-
-
-
-
-
