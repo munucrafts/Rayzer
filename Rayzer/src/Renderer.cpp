@@ -1,30 +1,50 @@
 ﻿#include "Renderer.h"
+#include <iostream>
 
 Renderer::Renderer()
 {
-	bounces = 2;
+	bounces = 4;
 	backgroundColor = {0.6f, 0.7f, 0.9f, 1.0f};
 	imageData = 0;
 	finalImage = nullptr;
+	accumulationData = nullptr;
+	shouldAccumulate = true;
+	frameIndex = 1;
 }
 
 void Renderer::Render(int width, int height)
 {
 	Resize(width, height);
 
+	if (frameIndex == 1)
+		memset(accumulationData, 0, sizeof(glm::vec4) * finalImage->GetWidth() * finalImage->GetHeight());
+
 	for (int y = 0; y < finalImage->GetHeight(); y++)
 	{
 		for (int x = 0; x < finalImage->GetWidth(); x++)
 		{
 			glm::vec2 coord = glm::vec2(x / (float)finalImage->GetWidth(), y / (float)finalImage->GetHeight());
-			coord = coord * 2.0f - 1.0f; 
+			coord = coord * 2.0f - 1.0f;
 			coord.x *= (float)finalImage->GetWidth() / (float)finalImage->GetHeight();
-			imageData[x + y * finalImage->GetWidth()] = ColorToRgba(RenderPixel(coord));
+
+			glm::vec4 color = RenderPixel(coord);
+			accumulationData[x + y * finalImage->GetWidth()] += color;
+
+			glm::vec4 accumulatedColor = accumulationData[x + y * finalImage->GetWidth()];
+			accumulatedColor /= (float)frameIndex;
+			accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+
+			imageData[x + y * finalImage->GetWidth()] = ColorToRgba(accumulatedColor);
 		}
 	}
 
 	finalImage->SetData(imageData);
+
+	frameIndex = shouldAccumulate ? frameIndex + 1 : 1;
+
+	std::cout << frameIndex << std::endl;
 }
+
 
 void Renderer::Resize(int width, int height)
 {
@@ -42,6 +62,9 @@ void Renderer::Resize(int width, int height)
 
 	delete[] imageData;
 	imageData = new uint32_t[width * height];
+
+	delete[] accumulationData;
+	accumulationData = new glm::vec4[width * height];
 }
 
 uint32_t Renderer::ColorToRgba(glm::vec4 color)

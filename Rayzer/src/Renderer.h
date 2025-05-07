@@ -23,8 +23,11 @@ private:
 
 private:
 	std::shared_ptr<Walnut::Image> finalImage;
-	uint32_t* imageData;
 	int bounces;
 	glm::vec4 backgroundColor;
+	uint32_t* imageData;
+	glm::vec4* accumulationData;
+	int frameIndex;
+	bool shouldAccumulate;
 };
 
