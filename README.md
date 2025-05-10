@@ -11,7 +11,7 @@
 
 - Ray-sphere intersection.
 - Recursive ray tracing with bounce depth.
-- Material system (color, roughness, emission).
+- Material system (color, roughness).
 - Light direction shading.
 - Accumulation buffer for denoising.
 - Randomized scattering for rough surfaces.
@@ -19,8 +19,8 @@
 
 ---
 
-## 💡 Future Ideas
+## Future Ideas
 
-- Add more material types (metal, dielectric, emissivenes).
+- Add more material types (metal, dielectric, emissiveness).
 - Multithreading for performance.
 - Camera movement and rotation.
