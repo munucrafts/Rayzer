@@ -4,7 +4,7 @@
 Renderer::Renderer()
 {
 	bounces = 4;
-	backgroundColor = { 0.6f, 0.7f, 0.35f, 1.0f };
+	backgroundColor = { 0.53f, 0.81f, 0.98f, 1.0f };
 	imageData = 0;
 	finalImage = nullptr;
 	accumulationData = nullptr;
@@ -99,18 +99,18 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
 	Sphere sphere1;
-	sphere1.origin = glm::vec3(- 2.0f, 0.0f, 3.0f);
-	sphere1.radius = 1.0f;
-	sphere1.mat.color = glm::vec3(0.0f, 0.6f, 0.6f);;
-	sphere1.mat.roughness = 1.0f;
+	sphere1.origin = glm::vec3(1.0f, 0.0f, 3.0f);
+	sphere1.radius = 2.0f;
+	sphere1.mat.color = glm::vec3(1.0f, 0.0f, 0.0f);;
+	sphere1.mat.roughness = 0.0f;
 	sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
 	sphere1.mat.emmisivePower = 1.0f;
 
 	Sphere sphere2;
-	sphere2.origin = glm::vec3(1.5f, 0.0f, 3.0f);
+	sphere2.origin = glm::vec3(-4.0f, 0.0f, 5.0f);
 	sphere2.radius = 2.0f;
-	sphere2.mat.color = glm::vec3(0.6f, 0.4f, 0.8f);
-	sphere2.mat.roughness = 0.1f;
+	sphere2.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
+	sphere2.mat.roughness = 0.0f;
 	sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
 	sphere2.mat.emmisivePower = 1.0f;
 
