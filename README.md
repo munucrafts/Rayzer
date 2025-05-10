@@ -1,6 +1,24 @@
-# Walnut App Template
 
-This is a simple app template for [Walnut](https://github.com/TheCherno/Walnut) - unlike the example within the Walnut repository, this keeps Walnut as an external submodule and is much more sensible for actually building applications. See the [Walnut](https://github.com/TheCherno/Walnut) repository for more details.
+# Rayzer – A Simple CPU Ray Tracer
 
-## Getting Started
-Once you've cloned, you can customize the `premake5.lua` and `WalnutApp/premake5.lua` files to your liking (eg. change the name from "WalnutApp" to something else).  Once you're happy, run `scripts/Setup.bat` to generate Visual Studio 2022 solution/project files. Your app is located in the `WalnutApp/` directory, which some basic example code to get you going in `WalnutApp/src/WalnutApp.cpp`. I recommend modifying that WalnutApp project to create your own application, as everything should be setup and ready to go.
+**Rayzer** is a simple CPU-based ray tracer designed to explore real-time rendering fundamentals like ray tracing, path tracing, ray-sphere intersection, material lighting, reflections, and roughness-based scattering, etc.
+
+---
+
+## Features
+
+- Ray-sphere intersection.
+- Recursive ray tracing with bounce depth.
+- Material system (color, roughness, emission).
+- Light direction shading.
+- Accumulation buffer for denoising.
+- Randomized scattering for rough surfaces.
+- Soft background blending.
+
+---
+
+## 💡 Future Ideas
+
+- Add more material types (metal, dielectric, emissivenes).
+- Multithreading for performance.
+- Camera movement and rotation.

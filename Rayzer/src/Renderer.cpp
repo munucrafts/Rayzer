@@ -4,7 +4,7 @@
 Renderer::Renderer()
 {
 	bounces = 4;
-	backgroundColor = {0.6f, 0.7f, 0.9f, 1.0f};
+	backgroundColor = { 0.6f, 0.7f, 0.35f, 1.0f };
 	imageData = 0;
 	finalImage = nullptr;
 	accumulationData = nullptr;
@@ -99,18 +99,20 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
 	Sphere sphere1;
-	sphere1.origin = { -2.0f, 0.0f, 3.0f };
+	sphere1.origin = glm::vec3(- 2.0f, 0.0f, 3.0f);
 	sphere1.radius = 1.0f;
-	sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);
-	sphere1.mat.roughness = 0.0f;
-	sphere1.mat.metallic = 1.0f;
+	sphere1.mat.color = glm::vec3(0.0f, 0.6f, 0.6f);;
+	sphere1.mat.roughness = 1.0f;
+	sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
+	sphere1.mat.emmisivePower = 1.0f;
 
 	Sphere sphere2;
-	sphere2.origin = { 1.5f, 0.0f, 3.0f };
+	sphere2.origin = glm::vec3(1.5f, 0.0f, 3.0f);
 	sphere2.radius = 2.0f;
-	sphere2.mat.color = glm::vec3(0.0f, 0.5f, 1.0f);
+	sphere2.mat.color = glm::vec3(0.6f, 0.4f, 0.8f);
 	sphere2.mat.roughness = 0.1f;
-	sphere2.mat.metallic = 0.4f;
+	sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
+	sphere2.mat.emmisivePower = 1.0f;
 
 	Scene activeScene;
 
@@ -145,21 +147,44 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 	if (closestHitSphere == nullptr)
 		return backgroundColor;
 
-	Light light;
-	light.lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-	light.intensity = 1.5f;
+	bool wantLight = 1;
+	glm::vec3 sphereColor(1.0);
 
-	float angle = light.GetLightIntensityAngle(closestHitRes.normal);
-	glm::vec3 sphereColor = closestHitSphere->mat.color * angle;
+	if (wantLight)
+	{
+		Light light;
+		light.lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+		light.intensity = 2.0f;
+		float angle = light.GetLightIntensityAngle(closestHitRes.normal);
+		sphereColor = closestHitSphere->mat.color * angle;
+	}
+	else
+	{
+		sphereColor = closestHitSphere->mat.color;
+	}
+
+	bool wantEmmision = 0;
+	glm::vec3 emmissiveness(0.0f);
 
 	ray.origin = closestHitRes.hitLocation + closestHitRes.normal * 0.0001f;
-	ray.direction = - glm::reflect(ray.direction, closestHitRes.normal 
-					+ closestHitSphere->mat.roughness * closestHitSphere->mat.metallic
-			        * Walnut::Random::Vec3(-0.5f, 0.5f));
+
+	if (!wantEmmision)
+	{
+		ray.direction = -glm::reflect(ray.direction, closestHitRes.normal
+			+ closestHitSphere->mat.roughness
+			* Walnut::Random::Vec3(-0.5f, 0.5f));
+	}
+	else
+	{
+		ray.direction = glm::normalize(closestHitRes.normal + Walnut::Random::InUnitSphere());
+		emmissiveness = closestHitSphere->mat.GetEmmisiveness();
+	}
 
 	glm::vec4 rayColor = TraceRay(ray, numBounces - 1);
 	glm::vec3 finalColor = glm::mix(sphereColor, glm::vec3(rayColor), 0.5f);
 	finalColor = glm::mix(finalColor, glm::vec3(backgroundColor), 0.1f);
+
+	finalColor += emmissiveness;
 
 	return glm::vec4(finalColor, 1.0f);
 }
