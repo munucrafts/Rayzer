@@ -5,7 +5,6 @@
 ![Render1](https://github.com/munucrafts/Rayzer/blob/master/Renders/01.png)
 ![Render2](https://github.com/munucrafts/Rayzer/blob/master/Renders/02.png)
 ![Render3](https://github.com/munucrafts/Rayzer/blob/master/Renders/03.png)
----
 
 ## Features
 
@@ -17,10 +16,9 @@
 - Randomized scattering for rough surfaces.
 - Soft background blending.
 
----
-
 ## Future Ideas
 
 - Add more material types (metal, dielectric, emissiveness).
-- Multithreading for performance.
+- Rendering shapes other than spheres.
 - Camera movement and rotation.
+- Multithreading for performance.
