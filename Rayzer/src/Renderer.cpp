@@ -101,7 +101,7 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 	Sphere sphere1;
 	sphere1.origin = glm::vec3(1.0f, 0.0f, 3.0f);
 	sphere1.radius = 2.0f;
-	sphere1.mat.color = glm::vec3(1.0f, 0.0f, 0.0f);;
+	sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);;
 	sphere1.mat.roughness = 0.0f;
 	sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
 	sphere1.mat.emmisivePower = 1.0f;
@@ -110,7 +110,7 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 	sphere2.origin = glm::vec3(-4.0f, 0.0f, 5.0f);
 	sphere2.radius = 2.0f;
 	sphere2.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
-	sphere2.mat.roughness = 0.0f;
+	sphere2.mat.roughness = 1.0f;
 	sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
 	sphere2.mat.emmisivePower = 1.0f;
 
