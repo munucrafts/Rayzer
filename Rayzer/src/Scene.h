@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include "Sphere.h"
+#include "Primitive.h"
 
 struct Scene
 {
-	std::vector<Sphere> spheres;
+	std::vector<Primitive*> shapes;
 };

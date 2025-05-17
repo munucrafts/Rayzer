@@ -1,7 +1,7 @@
 #include "Sphere.h"
 #include <iostream>
 
-HitResult Sphere::SphereRayIntersection(Ray& ray)
+HitResult Sphere::Intersection(Ray& ray)
 {
     HitResult hitData;
 

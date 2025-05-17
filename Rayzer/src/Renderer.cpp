@@ -41,8 +41,6 @@ void Renderer::Render(int width, int height)
 	finalImage->SetData(imageData);
 
 	frameIndex = shouldAccumulate ? frameIndex + 1 : 1;
-
-	std::cout << frameIndex << std::endl;
 }
 
 
@@ -98,93 +96,90 @@ glm::vec4 Renderer::RenderPixel(glm::vec2 coordinate)
 
 glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
-	Sphere sphere1;
-	sphere1.origin = glm::vec3(1.0f, 0.0f, 3.0f);
-	sphere1.radius = 2.0f;
-	sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);;
-	sphere1.mat.roughness = 0.0f;
-	sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
-	sphere1.mat.emmisivePower = 1.0f;
+    Scene activeScene;
 
-	Sphere sphere2;
-	sphere2.origin = glm::vec3(-4.0f, 0.0f, 5.0f);
-	sphere2.radius = 2.0f;
-	sphere2.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
-	sphere2.mat.roughness = 1.0f;
-	sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
-	sphere2.mat.emmisivePower = 1.0f;
+    Sphere sphere1;
+    sphere1.origin = glm::vec3(1.0f, 0.0f, 3.0f);
+    sphere1.radius = 2.0f;
+    sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);
+    sphere1.mat.roughness = 0.0f;
+    sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
+    sphere1.mat.emmisivePower = 1.0f;
 
-	Scene activeScene;
+    Sphere sphere2;
+    sphere2.origin = glm::vec3(-3.25f, 0.0f, 5.0f);
+    sphere2.radius = 1.5f;
+    sphere2.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
+    sphere2.mat.roughness = 1.0f;
+    sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
+    sphere2.mat.emmisivePower = 1.0f;
 
-	activeScene.spheres.push_back(sphere1);
-	activeScene.spheres.push_back(sphere2);
+    activeScene.shapes.push_back(&sphere1);
+    activeScene.shapes.push_back(&sphere2);
 
-	if (numBounces <= 0)
-		return backgroundColor;
+    if (numBounces <= 0 || activeScene.shapes.empty())
+        return backgroundColor;
 
-	if (activeScene.spheres.size() == 0)
-		return backgroundColor;
+    float closestHitDistance = FLT_MAX;
+    HitResult closestHitRes;
+    Primitive* closestHitShape = nullptr;
 
-	float closestHitDistance = FLT_MAX;
-	HitResult closestHitRes;
-	Sphere* closestHitSphere = nullptr;
+    for (Primitive* shape : activeScene.shapes)
+    {
+        HitResult hitRes = shape->Intersection(ray);
 
-	for (int i = 0; i < activeScene.spheres.size(); i++)
-	{
-		HitResult hitRes = activeScene.spheres[i].SphereRayIntersection(ray);
+        if (!hitRes.hit)
+            continue;
 
-		if (!hitRes.hit)
-			continue;
+        if (hitRes.hitDistance < closestHitDistance)
+        {
+            closestHitShape = shape;
+            closestHitDistance = hitRes.hitDistance;
+            closestHitRes = hitRes;
+        }
+    }
 
-		if (closestHitDistance > 0 && hitRes.hitDistance < closestHitDistance)
-		{
-			closestHitSphere = &activeScene.spheres[i];
-			closestHitDistance = hitRes.hitDistance;
-			closestHitRes = hitRes;
-		}
-	}
+    if (closestHitShape == nullptr)
+        return backgroundColor;
 
-	if (closestHitSphere == nullptr)
-		return backgroundColor;
+    glm::vec3 sphereColor(1.0f);
+    bool wantLight = true;
 
-	bool wantLight = 1;
-	glm::vec3 sphereColor(1.0);
+    if (wantLight)
+    {
+        Light light;
+        light.lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+        light.intensity = 2.0f;
+        float angle = light.GetLightIntensityAngle(closestHitRes.normal);
+        sphereColor = closestHitShape->mat.color * angle;
+    }
+    else
+    {
+        sphereColor = closestHitShape->mat.color;
+    }
 
-	if (wantLight)
-	{
-		Light light;
-		light.lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-		light.intensity = 2.0f;
-		float angle = light.GetLightIntensityAngle(closestHitRes.normal);
-		sphereColor = closestHitSphere->mat.color * angle;
-	}
-	else
-	{
-		sphereColor = closestHitSphere->mat.color;
-	}
+    bool wantEmmision = false;
+    glm::vec3 emmissiveness(0.0f);
 
-	bool wantEmmision = 0;
-	glm::vec3 emmissiveness(0.0f);
+    ray.origin = closestHitRes.hitLocation + closestHitRes.normal * 0.0001f;
 
-	ray.origin = closestHitRes.hitLocation + closestHitRes.normal * 0.0001f;
+    if (!wantEmmision)
+    {
+        ray.direction = -glm::reflect(ray.direction, closestHitRes.normal
+            + closestHitShape->mat.roughness
+            * Walnut::Random::Vec3(-0.5f, 0.5f));
+    }
+    else
+    {
+        ray.direction = glm::normalize(closestHitRes.normal + Walnut::Random::InUnitSphere());
+        emmissiveness = closestHitShape->mat.GetEmmisiveness();
+    }
 
-	if (!wantEmmision)
-	{
-		ray.direction = -glm::reflect(ray.direction, closestHitRes.normal
-			+ closestHitSphere->mat.roughness
-			* Walnut::Random::Vec3(-0.5f, 0.5f));
-	}
-	else
-	{
-		ray.direction = glm::normalize(closestHitRes.normal + Walnut::Random::InUnitSphere());
-		emmissiveness = closestHitSphere->mat.GetEmmisiveness();
-	}
+    glm::vec4 rayColor = TraceRay(ray, numBounces - 1);
+    glm::vec3 finalColor = glm::mix(sphereColor, glm::vec3(rayColor), 0.5f);
+    finalColor = glm::mix(finalColor, glm::vec3(backgroundColor), 0.1f);
+    finalColor += emmissiveness;
 
-	glm::vec4 rayColor = TraceRay(ray, numBounces - 1);
-	glm::vec3 finalColor = glm::mix(sphereColor, glm::vec3(rayColor), 0.5f);
-	finalColor = glm::mix(finalColor, glm::vec3(backgroundColor), 0.1f);
-
-	finalColor += emmissiveness;
-
-	return glm::vec4(finalColor, 1.0f);
+    return glm::vec4(finalColor, 1.0f);
 }
+

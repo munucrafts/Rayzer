@@ -1,14 +1,13 @@
 #pragma once
-#include "Ray.h"
 #include "Primitive.h"
 
-class Sphere : public Primitive
+class Cube : public Primitive
 {
 public:
-	Sphere() = default;
+	Cube() = default;
 	virtual HitResult Intersection(Ray& ray) override;
 
 public:
-	float radius;
+	float length, width, height;
 };
 
