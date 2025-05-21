@@ -1,5 +1,6 @@
 ﻿#include "Renderer.h"
 #include <iostream>
+#include "Cube.h"
 
 Renderer::Renderer()
 {
@@ -98,24 +99,88 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
 {
     Scene activeScene;
 
-    Sphere sphere1;
-    sphere1.origin = glm::vec3(1.0f, 0.0f, 3.0f);
-    sphere1.radius = 2.0f;
-    sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);
-    sphere1.mat.roughness = 0.0f;
-    sphere1.mat.emmisiveColor = glm::vec3(0.0f, 0.5f, 1.0f);
-    sphere1.mat.emmisivePower = 1.0f;
+	// Spheres
+	Sphere sphere1;
+	sphere1.origin = glm::vec3(-5.0f, 0.0f, -20.0f); 
+	sphere1.radius = 2.0f;
+	sphere1.mat.color = glm::vec3(1.0f, 1.0f, 0.0f);
+	sphere1.mat.roughness = 0.1f;
+	sphere1.mat.emmisiveColor = glm::vec3(0.2f, 0.6f, 1.0f);
+	sphere1.mat.emmisivePower = 1.5f;
 
-    Sphere sphere2;
-    sphere2.origin = glm::vec3(-3.25f, 0.0f, 5.0f);
-    sphere2.radius = 1.5f;
-    sphere2.mat.color = glm::vec3(0.0f, 0.0f, 1.0f);
-    sphere2.mat.roughness = 1.0f;
-    sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.5f, 0.2f);
-    sphere2.mat.emmisivePower = 1.0f;
+	Sphere sphere2;
+	sphere2.origin = glm::vec3(5.0f, 0.0f, -20.0f); 
+	sphere2.radius = 2.0f;
+	sphere2.mat.color = glm::vec3(0.6f, 0.0f, 1.0f); 
+	sphere2.mat.roughness = 0.2f;
+	sphere2.mat.emmisiveColor = glm::vec3(1.0f, 0.3f, 0.5f);
+	sphere2.mat.emmisivePower = 1.5f;
 
-    activeScene.shapes.push_back(&sphere1);
-    activeScene.shapes.push_back(&sphere2);
+
+	// Floor (Bottom)
+	Cube cubeBottom;
+	cubeBottom.origin = glm::vec3(0.0f, -8.0f, -10.0f);
+	cubeBottom.size = glm::vec3(100.0f, 10.0f, 100.0f);
+	cubeBottom.mat.color = glm::vec3(1.0f, 0.7f, 0.4f);
+	cubeBottom.mat.roughness = 0.3f;
+	cubeBottom.mat.emmisiveColor = glm::vec3(0.4f, 0.4f, 0.4f);
+	cubeBottom.mat.emmisivePower = 0.5f;
+
+	// Ceiling (Top)
+	Cube cubeTop;
+	cubeTop.origin = glm::vec3(0.0f, 42.0f, -10.0f);
+	cubeTop.size = glm::vec3(100.0f, 10.0f, 100.0f);
+	cubeTop.mat.color = glm::vec3(0.0f, 0.2f, 0.4f);  
+	cubeTop.mat.roughness = 0.0f;
+	cubeTop.mat.emmisiveColor = glm::vec3(0.0f, 0.3f, 0.6f);
+	cubeTop.mat.emmisivePower = 0.8f;
+
+	// Left Wall
+	Cube cubeLeft;
+	cubeLeft.origin = glm::vec3(-50.0f, 17.0f, -10.0f);
+	cubeLeft.size = glm::vec3(10.0f, 50.0f, 100.0f);
+	cubeLeft.mat.color = glm::vec3(0.0f, 1.0f, 0.2f); 
+	cubeLeft.mat.roughness = 0.2f;
+	cubeLeft.mat.emmisiveColor = glm::vec3(0.1f, 0.8f, 0.3f);
+	cubeLeft.mat.emmisivePower = 0.9f;
+
+	// Right Wall
+	Cube cubeRight;
+	cubeRight.origin = glm::vec3(50.0f, 17.0f, -10.0f);
+	cubeRight.size = glm::vec3(10.0f, 50.0f, 100.0f);
+	cubeRight.mat.color = glm::vec3(1.0f, 0.0f, 0.2f); 
+	cubeRight.mat.roughness = 0.2f;
+	cubeRight.mat.emmisiveColor = glm::vec3(0.8f, 0.2f, 0.3f);
+	cubeRight.mat.emmisivePower = 0.9f;
+
+	// Back Wall
+	Cube cubeBack;
+	cubeBack.origin = glm::vec3(0.0f, 17.0f, -60.0f);
+	cubeBack.size = glm::vec3(100.0f, 50.0f, 10.0f);
+	cubeBack.mat.color = glm::vec3(0.0f, 0.5f, 1.0f);  
+	cubeBack.mat.roughness = 0.2f;
+	cubeBack.mat.emmisiveColor = glm::vec3(0.1f, 0.6f, 1.0f);
+	cubeBack.mat.emmisivePower = 1.0f;
+
+	// Front Wall
+	Cube cubeFront;
+	cubeFront.origin = glm::vec3(0.0f, 17.0f, 40.0f);
+	cubeFront.size = glm::vec3(100.0f, 50.0f, 10.0f);
+	cubeFront.mat.color = glm::vec3(1.0f, 0.5f, 0.0f);  // Orange
+	cubeFront.mat.roughness = 0.2f;
+	cubeFront.mat.emmisiveColor = glm::vec3(1.0f, 0.6f, 0.1f);
+	cubeFront.mat.emmisivePower = 1.0f;
+
+	// Add all shapes to scene
+	activeScene.shapes.push_back(&sphere1);
+	activeScene.shapes.push_back(&sphere2);
+	activeScene.shapes.push_back(&cubeBottom);
+	activeScene.shapes.push_back(&cubeTop);
+	activeScene.shapes.push_back(&cubeRight);
+	activeScene.shapes.push_back(&cubeLeft);
+	activeScene.shapes.push_back(&cubeBack);
+	activeScene.shapes.push_back(&cubeFront);
+
 
     if (numBounces <= 0 || activeScene.shapes.empty())
         return backgroundColor;
@@ -142,20 +207,20 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
     if (closestHitShape == nullptr)
         return backgroundColor;
 
-    glm::vec3 sphereColor(1.0f);
-    bool wantLight = true;
+    glm::vec3 shapeColor(1.0f);
+    bool wantLight = false;
 
     if (wantLight)
     {
         Light light;
-        light.lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-        light.intensity = 2.0f;
+        light.lightDirection = glm::vec3(0.0f, -20.0f, -1.0f);
+        light.intensity = 1.0f;
         float angle = light.GetLightIntensityAngle(closestHitRes.normal);
-        sphereColor = closestHitShape->mat.color * angle;
+        shapeColor = closestHitShape->mat.color * angle;
     }
     else
     {
-        sphereColor = closestHitShape->mat.color;
+        shapeColor = closestHitShape->mat.color;
     }
 
     bool wantEmmision = false;
@@ -176,9 +241,10 @@ glm::vec4 Renderer::TraceRay(Ray& ray, int numBounces)
     }
 
     glm::vec4 rayColor = TraceRay(ray, numBounces - 1);
-    glm::vec3 finalColor = glm::mix(sphereColor, glm::vec3(rayColor), 0.5f);
+    glm::vec3 finalColor = glm::mix(shapeColor, glm::vec3(rayColor), 0.5f);
     finalColor = glm::mix(finalColor, glm::vec3(backgroundColor), 0.1f);
     finalColor += emmissiveness;
+
 
     return glm::vec4(finalColor, 1.0f);
 }
