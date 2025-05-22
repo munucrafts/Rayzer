@@ -2,9 +2,7 @@
 
 **Rayzer** is a simple CPU-based ray tracer designed to explore real-time rendering fundamentals like ray tracing, path tracing, ray-sphere intersection, material lighting, reflections, and roughness-based scattering, etc.
 
-![Render1](https://github.com/munucrafts/Rayzer/blob/master/Renders/01.png)
-![Render2](https://github.com/munucrafts/Rayzer/blob/master/Renders/02.png)
-![Render3](https://github.com/munucrafts/Rayzer/blob/master/Renders/03.png)
+<table> <tr> <td><img src="https://github.com/munucrafts/Rayzer/blob/master/Renders/01.png?raw=true" width="400"/></td> <td><img src="https://github.com/munucrafts/Rayzer/blob/master/Renders/04.png?raw=true" width="400"/></td> </tr> <tr> <td><img src="https://github.com/munucrafts/Rayzer/blob/master/Renders/03.png?raw=true" width="400"/></td> <td><img src="https://github.com/munucrafts/Rayzer/blob/master/Renders/02.png?raw=true" width="400"/></td> </tr> </table>
 
 ## Features
 
