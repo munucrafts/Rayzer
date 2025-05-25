@@ -1,6 +1,8 @@
 # Rayzer – A Simple CPU Ray Tracer
 
-**Rayzer** is a simple CPU-based ray tracer designed to explore real-time rendering fundamentals like ray tracing, path tracing, ray-sphere intersection, material lighting, reflections, and roughness-based scattering, etc.
+### **Rayzer** is a simple CPU-based ray tracer designed to explore real-time rendering fundamentals like ray tracing, path tracing, ray-sphere intersection, material lighting, reflections, and roughness-based scattering, etc.
+
+Note: I am using the https://github.com/StudioCherno/WalnutAppTemplate here as a template, as it already includes a few useful libraries like GLM, ImGui, etc.
 
 <div align="center">
   <img src="https://github.com/munucrafts/Rayzer/blob/master/Renders/01.png?raw=true" width="400" height="285" style="object-fit: cover; margin: 4px;" />
