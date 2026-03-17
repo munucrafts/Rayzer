@@ -33,10 +33,3 @@ I am using the **[WalnutAppTemplate](https://github.com/StudioCherno/WalnutAppTe
 * Randomized scattering for rough surfaces
 * Soft background blending
 * Rendering Spheres and Cubes
-
----
-
-## Future Ideas
-
-* Camera movement and rotation
-* Multithreading for performance
